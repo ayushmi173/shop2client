@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "declaration": true,
+      "removeComments": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "allowSyntheticDefaultImports": true,
+      "noImplicitAny": false,
+      "noImplicitReturns": false,
+      "noImplicitThis": true,
+      "strictNullChecks": true,
+      "target": "es2017",
+      "sourceMap": true,
+      "incremental": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "isolatedModules": true,
+      "preserveConstEnums": true,
+      "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true
+    }
+  }
+  
