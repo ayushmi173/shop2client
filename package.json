@@ -5,6 +5,9 @@
   "repository": "git@github.com:ayushmi173/E-commerce-web-app.git",
   "author": "ayushmi173 <ayushmishra173@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "env": "dotenv -e ${ENV_PATH:-.env} --"
+  },
   "devDependencies": {
     "@types/node": "^16.3.1",
     "@types/react": "^17.0.14",
