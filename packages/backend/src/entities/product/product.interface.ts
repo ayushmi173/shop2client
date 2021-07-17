@@ -3,7 +3,7 @@ import { IBaseEntity } from 'src/entities/base.interface';
 
 export interface IProduct extends IBaseEntity {
   name: string;
-  description: string;
+  description?: string;
   price: string;
   image?: string;
   offer?: number;

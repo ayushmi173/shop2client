@@ -8,8 +8,8 @@ export class ProductEntity extends BaseEntity implements IProduct {
   @Column({ nullable: false, unique: true })
   name: string;
 
-  @Column({ nullable: false })
-  description: string;
+  @Column({ nullable: true })
+  description?: string;
 
   @Column({ nullable: false })
   price: string;

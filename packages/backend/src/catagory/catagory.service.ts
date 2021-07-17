@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCatagoryDTO, ICreateCatagoryDTO } from 'src/dtos/catagory';
 import { CatagoryEntity } from 'src/entities';
@@ -12,11 +16,16 @@ export class CatagoryService {
   ) {}
 
   async createCatagory(dto: CreateCatagoryDTO): Promise<ICreateCatagoryDTO> {
-    console.log('enter in service');
+    const catagoryName = await this.catagoryService.findOne({
+      name: dto.name,
+    });
+    if (catagoryName)
+      throw new NotAcceptableException('Catagory is already exist');
+
     const catagoryEntity = this.catagoryService.create({ ...dto });
     const catagory = await this.catagoryService.save(catagoryEntity);
-    if (!catagory) throw new BadRequestException('invalid data');
-    console.log('db data', catagory);
+
+    if (!catagory) throw new BadRequestException('Catagory is not saved');
     return catagory;
   }
 }

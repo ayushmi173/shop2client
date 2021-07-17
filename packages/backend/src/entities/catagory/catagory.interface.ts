@@ -18,7 +18,7 @@ export enum CATAGORY_TYPE {
 
 export interface ICatagory extends IBaseEntity {
   name: string;
-  description: string;
+  description?: string;
   image?: string;
   offer?: number;
   stock?: STOCK;

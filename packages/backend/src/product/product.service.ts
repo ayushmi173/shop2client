@@ -18,21 +18,15 @@ export class ProductService {
   ) {}
 
   async createProduct(dto: CreateProductDTO): Promise<IProduct> {
-    console.log('caome');
-    const { imageFile, ...data } = dto;
-    const productEntity = this.productRepository.create({ ...data });
-    if (imageFile) {
-      const imageUrl = await this.uploadService.uploadImage(imageFile);
-      productEntity.image = imageUrl.url;
-    }
+    const productEntity = this.productRepository.create(dto);
     const product = await this.productRepository.save(productEntity);
-    if (!product) throw new BadRequestException('invalid data');
+    if (!product) throw new BadRequestException('Product can not be created');
     return product;
   }
 
   async getProductsByCatagoryId(catagoryId: string): Promise<IProduct[]> {
     const products = await this.productRepository.findByIds([catagoryId]);
-    if (!products) throw new NotFoundException('products not found');
+    if (!products) throw new NotFoundException('product not found');
     return products;
   }
 }

@@ -8,8 +8,8 @@ export class CatagoryEntity extends BaseEntity implements ICatagory {
   @Column({ nullable: false, unique: true })
   name: string;
 
-  @Column({ nullable: false })
-  description: string;
+  @Column({ nullable: true })
+  description?: string;
 
   @Column({ nullable: true })
   image?: string;

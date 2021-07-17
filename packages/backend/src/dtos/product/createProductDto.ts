@@ -4,7 +4,7 @@ export interface ICreateProductDTO {
   name: string;
   description?: string;
   price: string;
-  imageFile?: Express.Multer.File;
+  image?: string;
   offer?: number;
   catagoryId: string;
 }
@@ -14,13 +14,15 @@ export class CreateProductDTO implements ICreateProductDTO {
   name: string;
 
   @IsString()
+  @IsOptional()
   description?: string;
 
   @IsString()
   price: string;
 
+  @IsString()
   @IsOptional()
-  imageFile?: Express.Multer.File;
+  image?: string;
 
   @IsNumber()
   @IsOptional()

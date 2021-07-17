@@ -12,7 +12,7 @@ import { CatagoryService } from './catagory.service';
 @UsePipes(
   new ValidationPipe({
     whitelist: true,
-    // transform: true,
+    transform: true,
   }),
 )
 export class CatagoryController {
@@ -22,7 +22,6 @@ export class CatagoryController {
   async createCatagory(
     @Body() createCatagoryDto: CreateCatagoryDTO,
   ): Promise<ICreateCatagoryDTO> {
-    console.log('enter in controller', createCatagoryDto);
     return await this.catagoryService.createCatagory(createCatagoryDto);
   }
 }
