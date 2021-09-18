@@ -1,0 +1,38 @@
+version: '3.4'
+
+networks:
+    e-commerce:
+        driver: bridge
+
+volumes:
+    e-commerce-volume:
+
+services:
+    
+    postgres:
+        container_name: e-commerce-postgres
+        image: 'postgres:11.5'
+        command: postgres -c max_connections=1000
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER:-ayush}
+            POSTGRES_PASSWORD: ${POSTGRES_PASS:-password}
+            POSTGRES_DB: ecommerce
+            PGDATA: /var/lib/postgresql/data/db
+        ports:
+            - '5433:5432'
+        volumes:
+            - e-commerce-volume:/var/lib/postgresql/data:delegated
+        networks:
+            - e-commerce
+        restart: unless-stopped
+
+    pgadmin:
+        container_name: e-commerce-pgadmin
+        image: 'dpage/pgadmin4'
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER:-ayush@mishra.com}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-password}
+        networks:
+            - e-commerce
+        ports:
+            - '6002:80'
