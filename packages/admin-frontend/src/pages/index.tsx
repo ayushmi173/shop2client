@@ -108,7 +108,7 @@ const Home: React.FC = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            <div className="flex h-screen bg-gray-200 items-center justify-center  mt-32 mb-32">
+            <div className="flex h-screen bg-gray-200 items-center justify-center mt-32 mb-32">
                 <div className="grid bg-white rounded-lg shadow-xl w-11/12 md:w-9/12 lg:w-1/2">
                     <div className="flex justify-center py-4">
                         <div className="flex bg-purple-200 rounded-full md:p-4 p-2 border-2 border-purple-300">
@@ -286,6 +286,31 @@ const Home: React.FC = () => {
                             Create
                         </button>
                     </div>
+                </div>
+            </div>
+            <div className="md:flex">
+                <div className="md:flex-shrink-0">
+                    <img
+                        className="rounded-lg md:w-56"
+                        src="/img/shopping.jpg"
+                        alt="Woman paying for a purchase"
+                    />
+                </div>
+                <div className="mt-4 md:mt-0 md:ml-6">
+                    <div className="uppercase tracking-wide text-sm text-indigo-600 font-bold">
+                        Marketing
+                    </div>
+                    <a
+                        href="/get-started"
+                        className="block mt-1 text-lg leading-tight font-semibold text-gray-900 hover:underline"
+                    >
+                        Finding customers for your new business
+                    </a>
+                    <p className="mt-2 text-gray-600">
+                        Getting a new business off the ground is a lot of hard
+                        work. Here are five ideas you can use to find your first
+                        customers.
+                    </p>
                 </div>
             </div>
         </div>

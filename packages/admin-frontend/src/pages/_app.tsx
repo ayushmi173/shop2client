@@ -1,5 +1,5 @@
 import React from 'react'
-import '../index.css'
+import '../../index.css'
 import { AppProps } from 'next/app'
 
 export default function App({ Component, pageProps }: AppProps): JSX.Element {
