@@ -1,9 +1,9 @@
 {
-    "name": "@e-commerce-web-app/admin-frontend",
+    "name": "@e-commerce-web-app/ui",
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "start:dev": "yarn run watch:css && ts-node src/server/server.ts",
+        "start:dev": "yarn run watch:css && next dev",
         "build": "yarn run watch:css && next build",
         "start": "next start",
         "lint": "eslint .",
@@ -12,14 +12,9 @@
     "dependencies": {
         "@babel/core": "^7.14.6",
         "@babel/preset-env": "^7.14.7",
-        "axios": "^0.21.1",
-        "compressorjs": "^1.0.7",
-        "express": "^4.17.1",
         "next": "11.0.1",
-        "next-routes": "^1.4.2",
         "react": "17.0.2",
         "react-dom": "17.0.2",
-        "ts-node": "^10.4.0",
         "tsconfig-paths-webpack-plugin": "^3.5.1"
     },
     "devDependencies": {

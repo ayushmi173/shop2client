@@ -13,8 +13,8 @@
         "sync": "yarn install --production=false && lerna bootstrap && yarn build",
         "build": "yarn env lerna run build --parallel",
         "env": "dotenv -f ${ENV_PATH:-.env} --",
-        "start:dev": "yarn env lerna exec 'yarn start:dev' --scope=@e-commerce-web-app/{backend,frontend} --stream",
-        "start:admin:dev": "yarn env lerna exec 'yarn start:dev' --scope=@e-commerce-web-app/admin-frontend --stream"
+        "start:dev": "yarn env lerna exec 'yarn start:dev' --scope=@e-commerce-web-app/{backend,ui} --stream",
+        "start:admin:dev": "yarn env lerna exec 'yarn start:dev' --scope=@e-commerce-web-app/admin-ui --stream"
     },
     "devDependencies": {
         "@types/node": "^16.3.1",

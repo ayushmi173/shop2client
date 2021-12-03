@@ -3,15 +3,10 @@ import { CatagoryEntity, ProductEntity } from 'src/entities';
 import { ConnectionOptions } from 'typeorm';
 dotenv.config();
 
-export const ENVIRONMENT_VARIABLES = {
-  POSTGRES_USER: 'POSTGRES_USER',
-  POSTGRES_HOST: 'POSTGRES_DATABASE_HOST',
-  POSTGRES_PORT: 'POSTGRES_PORT',
-  POSTGRES_PASSWORD: 'POSTGRES_PASSWORD',
-  POSTGRES_DATABASE: 'POSTGRES_DATABASE_NAME',
-};
 
 console.log(__dirname + '');
+
+// https://medium.com/@jonathan.pretre91/clean-architecture-with-nestjs-e089cef65045
 
 export default {
   type: 'postgres',

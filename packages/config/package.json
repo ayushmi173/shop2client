@@ -1,0 +1,13 @@
+{
+    "name": "@e-commerce-web-app/config",
+    "version": "1.0.0",
+    "description": "config for each package if needed",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc -p ./tsconfig.json"
+    },
+    "dependencies": {
+        "joi": "^17.4.0"
+    }
+}
