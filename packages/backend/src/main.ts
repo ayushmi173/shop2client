@@ -1,17 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
+// import * as dotenv from 'dotenv';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ENVIRONMENT_VARIABLES } from '@package/config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  dotenv.config();
+  // dotenv.config();
   const app = await NestFactory.create(AppModule);
-  const port = process.env.BACKEND_PORT;
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe());
 
-  // app.useGlobalPipes(new ValidationPipe());
-  await app.listen(port);
-  logger.log(`Application running on Port: ${port}`);
+  const service = app.get(ConfigService);
+  const backendPort = service.get(ENVIRONMENT_VARIABLES.BACKEND_PORT) as number;
+
+  await app.listen(backendPort || 5000);
+  logger.log(`Application running on Port: ${backendPort || 5000}`);
 }
 bootstrap();

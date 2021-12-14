@@ -20,7 +20,7 @@ export class UploadService {
   async uploadMultipleFiles(files: Express.Multer.File[]) {
     if (!files) throw new NotFoundException('files not found');
 
-    const response = [];
+    const response: any = [];
     files.forEach((file) => {
       const fileReponse = {
         originalname: file.originalname,

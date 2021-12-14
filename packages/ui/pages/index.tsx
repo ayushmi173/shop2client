@@ -1,5 +1,5 @@
-import React from 'react'
-import Head from 'next/head'
+import React from 'react';
+import Head from 'next/head';
 
 const Home: React.FC = () => {
     return (
@@ -17,7 +17,7 @@ const Home: React.FC = () => {
                 <p>You are using Tailwind CSS!</p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Home
+export default Home;

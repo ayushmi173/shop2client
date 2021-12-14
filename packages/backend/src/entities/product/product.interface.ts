@@ -1,4 +1,4 @@
-import { IBaseEntity } from 'src/entities/base.interface';
+import { IBaseEntity } from '../../entities/base.interface';
 // import { ICatagory } from '../catagory';
 
 export interface IProduct extends IBaseEntity {

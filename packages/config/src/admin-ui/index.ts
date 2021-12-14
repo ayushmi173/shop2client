@@ -1,4 +1,4 @@
-import { ENVIRONMENT_VARIABLES, pickAndGenerateSchema } from 'src';
+import { ENVIRONMENT_VARIABLES, pickAndGenerateSchema } from '../';
 
 export type AdminUiConfig = {
     ADMIN_PORT: number;
