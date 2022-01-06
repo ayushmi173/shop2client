@@ -32,4 +32,5 @@ export const EnvironmentSchema: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
     [ENVIRONMENT_VARIABLES.UI_PORT]: Joi.number()
         .default(DEFAULT_UI_PORT)
         .required(),
+    [ENVIRONMENT_VARIABLES.JWT_SECRET_KEY]: Joi.string().required(),
 };

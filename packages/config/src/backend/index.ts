@@ -10,6 +10,7 @@ export type BackendConfig = {
     BACKEND_URL: string;
     NODE_ENV: string;
     ENVIRONMENT: string;
+    JWT_SECRET_KEY: string;
 };
 
 export const backendConfigSchema = pickAndGenerateSchema([
@@ -22,4 +23,5 @@ export const backendConfigSchema = pickAndGenerateSchema([
     ENVIRONMENT_VARIABLES.BACKEND_URL,
     ENVIRONMENT_VARIABLES.NODE_ENV,
     ENVIRONMENT_VARIABLES.ENVIRONMENT,
+    ENVIRONMENT_VARIABLES.JWT_SECRET_KEY,
 ]);

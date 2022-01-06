@@ -34,6 +34,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ENVIRONMENT_VARIABLES } from '@package/config';
 
 import * as path from 'path';
+import { UserEntity } from '../src/entities/user';
 
 export const DatabaseProvider: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
@@ -55,7 +56,6 @@ export const DatabaseProvider: TypeOrmModuleAsyncOptions = {
     const database: string | undefined = configService.get(
       ENVIRONMENT_VARIABLES.POSTGRES_DATABASE_NAME,
     );
-    console.log('credentials', host, port, password, database);
 
     if (
       host === undefined ||
@@ -68,12 +68,13 @@ export const DatabaseProvider: TypeOrmModuleAsyncOptions = {
     // todo get all entities here without needing to explicitly importing
     return {
       type: 'postgres',
-      entities: [CatagoryEntity, ProductEntity],
+      entities: [CatagoryEntity, ProductEntity, UserEntity],
       host,
       port,
       username,
       password,
       database,
+      // make it false, recommandable false
       synchronize: false,
       migrationsTableName: 'typeorm_migrations',
       migrations: [
