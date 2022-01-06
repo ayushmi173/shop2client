@@ -5,7 +5,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreateCatagoryDTO, ICreateCatagoryDTO } from 'src/dtos/catagory';
+import { CreateCatagoryDTO, ICreateCatagoryDTO } from '../dtos/catagory';
 import { CatagoryService } from './catagory.service';
 
 @Controller('catagory')

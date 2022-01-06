@@ -1,4 +1,4 @@
-import { IBaseEntity } from 'src/entities/base.interface';
+import { IBaseEntity } from '../../entities/base.interface';
 import { IProduct } from '../product/product.interface';
 
 export enum STOCK {

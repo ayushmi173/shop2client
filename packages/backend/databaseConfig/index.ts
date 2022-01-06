@@ -75,7 +75,7 @@ export const DatabaseProvider: TypeOrmModuleAsyncOptions = {
       password,
       database,
       // make it false, recommandable false
-      synchronize: true,
+      synchronize: false,
       migrationsTableName: 'typeorm_migrations',
       migrations: [
         path.resolve('../../packages/backend/src/migrations/*{.ts,.js}'),

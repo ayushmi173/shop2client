@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UploadService } from 'src/upload/upload.service';
+import { UploadService } from '../upload/upload.service';
 import { CatagoryEntity, ProductEntity } from '../entities';
 import { ProductService } from '../product/product.service';
 

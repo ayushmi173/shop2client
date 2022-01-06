@@ -1,0 +1,22 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "target": "esnext",
+        "module": "esnext",
+        "jsx": "preserve",
+        "lib": ["dom", "es2017"],
+        "moduleResolution": "node",
+        "allowJs": true,
+        "strict": false,
+        "noEmit": true,
+        "incremental": false,
+        "baseUrl": "./",
+        "paths": {
+            "@package/*": ["../*/src/index"],
+            "src/*": ["./src/*"]
+        }
+    },
+    "exclude": ["dist", ".next", "out", "next.config.js"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/_app.tsx"]
+}

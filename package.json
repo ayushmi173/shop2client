@@ -1,22 +1,32 @@
 {
-  "name": "e-commerce-web-app",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:ayushmi173/E-commerce-web-app.git",
-  "author": "ayushmi173 <ayushmishra173@gmail.com>",
-  "license": "MIT",
-  "scripts": {
-    "env": "dotenv -e ${ENV_PATH:-.env} --"
-  },
-  "devDependencies": {
-    "@types/node": "^16.3.1",
-    "@types/react": "^17.0.14",
-    "@types/react-dom": "^17.0.9",
-    "ts-loader": "^9.2.3",
-    "typescript": "^4.3.5"
-  },
-  "dependencies": {
-    "dotenv": "^10.0.0",
-    "prettier": "^2.3.2"
-  }
+    "name": "e-commerce-web-app",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "git@github.com:ayushmi173/e-commerce-web-app.git",
+    "author": "ayushmi173 <ayushmishra173@gmail.com>",
+    "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "sync": "yarn install --production=false && lerna bootstrap && yarn build",
+        "build": "yarn env lerna run build --parallel",
+        "env": "dotenv -f ${ENV_PATH:-.env} --",
+        "start:dev": "yarn env lerna exec 'yarn start:dev' --scope=@e-commerce-web-app/{backend,ui} --stream",
+        "start:admin:dev": "yarn env lerna exec 'yarn start:dev' --scope=@e-commerce-web-app/admin-ui --stream",
+        "start:backend:prod": "yarn env lerna exec 'yarn start:prod' --scope=@e-commerce-web-app/backend --stream"
+    },
+    "devDependencies": {
+        "@types/node": "^16.3.1",
+        "@types/react": "^17.0.14",
+        "@types/react-dom": "^17.0.9",
+        "ts-loader": "^9.2.3",
+        "typescript": "^4.3.5"
+    },
+    "dependencies": {
+        "dotenv": "^10.0.0",
+        "lerna": "^4.0.0",
+        "prettier": "^2.3.2"
+    }
 }
