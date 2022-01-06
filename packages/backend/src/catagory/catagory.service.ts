@@ -4,8 +4,8 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCatagoryDTO, ICreateCatagoryDTO } from 'src/dtos/catagory';
-import { CatagoryEntity } from 'src/entities';
+import { CreateCatagoryDTO, ICreateCatagoryDTO } from '../dtos/catagory';
+import { CatagoryEntity } from '../entities';
 import { Repository } from 'typeorm';
 
 @Injectable()

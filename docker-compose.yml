@@ -19,7 +19,7 @@ services:
             POSTGRES_DB: ecommerce
             PGDATA: /var/lib/postgresql/data/db
         ports:
-            - '5433:5432'
+            - '5432:5432'
         volumes:
             - e-commerce-volume:/var/lib/postgresql/data:delegated
         networks:

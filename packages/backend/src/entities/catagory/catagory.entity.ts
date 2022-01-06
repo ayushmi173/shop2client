@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/entities/base.entity';
+import { BaseEntity } from '../../entities/base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { ProductEntity } from '../product';
 import { CATAGORY_TYPE, ICatagory, STOCK } from './catagory.interface';
