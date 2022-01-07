@@ -9,3 +9,8 @@ export interface IUser extends IBaseEntity {
 }
 
 export type ISanitizedUser = Omit<IUser, 'password'>;
+
+export interface IUserToken {
+  username: string;
+  token: string;
+}

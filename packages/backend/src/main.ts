@@ -1,15 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-// import * as dotenv from 'dotenv';
+import helmet from 'helmet';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+import { AppModule } from './app.module';
 import { ENVIRONMENT_VARIABLES } from '@package/config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  // dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.use(helmet());
+
   app.useGlobalPipes(new ValidationPipe());
 
   const service = app.get(ConfigService);

@@ -6,11 +6,10 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ISanitizedUser } from 'src/entities';
-import { LoginDTO, RegistrationDTO } from '../dtos/auth';
+import { ISanitizedUser, IUserToken } from '../entities';
+import { RegistrationDTO } from '../dtos/auth';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guard/jwtAuth.guard';
-// import { LocalAuthGuard } from './guard/localAuth.guard';
+import { JwtAuthGuard, LocalAuthGuard } from '../guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,18 +22,16 @@ export class AuthController {
     return await this.authService.register(registrationDto);
   }
 
-  // @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() loginDto: LoginDTO): Promise<any> {
-    const x = await this.authService.login(loginDto);
-    console.log(x);
-    return x;
+  // create own decorator for this
+  async login(@Request() request): Promise<IUserToken> {
+    return await this.authService.login(request.user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req): ISanitizedUser {
-    console.log(req);
-    return req.user;
+  @Get('me')
+  async getMe(@Request() request): Promise<ISanitizedUser> {
+    return await this.authService.getMe(request.user.id);
   }
 }

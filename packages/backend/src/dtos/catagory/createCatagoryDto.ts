@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { CATAGORY_TYPE, STOCK } from '../../entities';
 
 export interface ICreateCatagoryDTO {

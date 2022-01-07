@@ -7,8 +7,7 @@ import { UserEntity } from '../entities';
 import { ENVIRONMENT_VARIABLES } from '../../../config/src';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './local.strategy';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy, LocalStrategy } from './strategy';
 
 @Module({
   imports: [
@@ -17,9 +16,7 @@ import { JwtStrategy } from './jwt.strategy';
       useFactory: async (
         configService: ConfigService,
       ): Promise<JwtModuleOptions> => ({
-        secretOrPrivateKey: configService.get<string>(
-          ENVIRONMENT_VARIABLES.JWT_SECRET_KEY,
-        ),
+        secret: configService.get<string>(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
         signOptions: { expiresIn: '30 days' },
       }),
       imports: [ConfigModule],

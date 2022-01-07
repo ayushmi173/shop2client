@@ -7,7 +7,7 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginDTO, RegistrationDTO } from '../dtos/auth';
-import { ISanitizedUser, IUser, UserEntity } from '../entities';
+import { ISanitizedUser, IUserToken, UserEntity } from '../entities';
 
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -41,10 +41,7 @@ export class AuthService {
     if (!registeredUser)
       throw new NotAcceptableException(`Can't register with this user`);
 
-    // this.login({
-    //   userId: registeredUser.id,
-    //   username: registeredUser.username,
-    // });
+    await this.login(registeredUser);
     return registeredUser;
   }
 
@@ -52,7 +49,7 @@ export class AuthService {
     await this.validateUser({ username, password });
   }
 
-  async findOne(id: string): Promise<IUser> {
+  async findOne(id: string): Promise<ISanitizedUser> {
     const user = await this.authRepo.findOne(id);
     if (!user) throw new NotFoundException('User is not found with given id');
 
@@ -66,21 +63,34 @@ export class AuthService {
     const user = await this.authRepo.findOne({
       username,
     });
-    if (user) {
-      const isEqualPassword = await bcrypt.compare(user.password, password);
-      if (isEqualPassword) {
-        const { password, ...validatedUser } = user;
-        return validatedUser;
-      }
+    if (!user) throw new NotFoundException('Username is found');
+
+    const isEqualPassword = await bcrypt.compare(password, user.password);
+
+    if (isEqualPassword) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...validatedUser } = user;
+      return validatedUser;
     }
+
     return undefined;
   }
 
-  async login(user: any) {
-    console.log(user);
-    const payload = { username: user.username, sub: user.userId };
+  async getMe(id: string): Promise<ISanitizedUser> {
+    const user = await this.authRepo.findOne(id);
+
+    if (!user) throw new NotFoundException(`User is not authorized yet!`);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userDetails } = user;
+    return userDetails;
+  }
+
+  async login(user: ISanitizedUser): Promise<IUserToken> {
+    const payload = { username: user.username, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      username: user.username,
+      token: this.jwtService.sign(payload),
     };
   }
 }
