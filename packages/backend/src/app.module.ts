@@ -8,6 +8,7 @@ import { CatagoryModule } from './catagory/catagory.module';
 import { UploadModule } from './upload/upload.module';
 import { ConfigModule } from '@nestjs/config';
 import { backendConfigSchema } from '@package/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { backendConfigSchema } from '@package/config';
     ProductModule,
     CatagoryModule,
     UploadModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

@@ -1,5 +1,5 @@
 {
-    "name": "@e-commerce-web-app/config",
+    "name": "@shop2client/config",
     "version": "1.0.0",
     "description": "config for each package if needed",
     "main": "index.js",

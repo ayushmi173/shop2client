@@ -1,5 +1,5 @@
 {
-    "name": "@e-commerce-web-app/admin-ui",
+    "name": "@shop2client/admin-ui",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -12,7 +12,7 @@
     "dependencies": {
         "@babel/core": "^7.14.6",
         "@babel/preset-env": "^7.14.7",
-        "@e-commerce-web-app/config": "^1.0.0",
+        "@shop2client/config": "^1.0.0",
         "axios": "^0.21.1",
         "compressorjs": "^1.0.7",
         "express": "^4.17.1",
