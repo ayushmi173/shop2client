@@ -1,16 +1,36 @@
 version: '3.4'
 
 networks:
-    e-commerce:
+    shop2client:
         driver: bridge
 
 volumes:
-    e-commerce-volume:
+    shop2client-volume:
 
 services:
-    
+    # ui:
+    #     container_name: shop2client-ui
+    #     build: ./packages/ui
+    #     ports:
+    #         - '6000:6000'
+    #     restart: always
+    #     links:
+    #         - backend
+    #     networks:
+    #         - shop2client
+
+    # backend:
+    #     container_name: backend
+    #     build: ./packages/backend
+    #     ports:
+    #         - '5000:5000'
+    #     restart: always
+    #     links:
+    #         - postgres
+    #     networks:
+    #         - shop2client
     postgres:
-        container_name: e-commerce-postgres
+        container_name: shop2client
         image: 'postgres:11.5'
         command: postgres -c max_connections=1000
         environment:
@@ -19,20 +39,20 @@ services:
             POSTGRES_DB: ecommerce
             PGDATA: /var/lib/postgresql/data/db
         ports:
-            - '5432:5432'
+            - '5434:5432'
         volumes:
-            - e-commerce-volume:/var/lib/postgresql/data:delegated
+            - shop2client-volume:/var/lib/postgresql/data:delegated
         networks:
-            - e-commerce
+            - shop2client
         restart: unless-stopped
 
     pgadmin:
-        container_name: e-commerce-pgadmin
+        container_name: shop2client-pgadmin
         image: 'dpage/pgadmin4'
         environment:
             PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER:-ayush@mishra.com}
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-password}
         networks:
-            - e-commerce
+            - shop2client
         ports:
             - '6002:80'

@@ -6,7 +6,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ISanitizedUser, IUserToken } from '../entities';
+import { ISanitizedUser, IUserToken } from '@package/entities';
 import { RegistrationDTO } from '../dtos/auth';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard, LocalAuthGuard } from '../guard';

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JsonWebTokenError } from 'jsonwebtoken';
-import { ISanitizedUser } from 'src/entities';
+import { ISanitizedUser } from '@package/entities';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -15,7 +15,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     info: any,
     context: ExecutionContext,
     status: number,
-  ) {
+  ): any {
     if (info instanceof JsonWebTokenError || error || !user) {
       throw new UnauthorizedException('Invalid token or expired token!');
     }

@@ -7,7 +7,7 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginDTO, RegistrationDTO } from '../dtos/auth';
-import { ISanitizedUser, IUserToken, UserEntity } from '../entities';
+import { ISanitizedUser, IUserToken, UserEntity } from '@package/entities';
 
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
