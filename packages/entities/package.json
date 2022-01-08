@@ -1,0 +1,13 @@
+{
+    "name": "@shop2client/entities",
+    "version": "1.0.0",
+    "description": "entities for each package if needed",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc -p ./tsconfig.json"
+    },
+    "dependencies": {
+        "typeorm": "^0.2.34"
+    }
+}

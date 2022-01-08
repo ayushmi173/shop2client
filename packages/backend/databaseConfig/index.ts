@@ -1,5 +1,4 @@
 // import * as dotenv from 'dotenv';
-import { CatagoryEntity, ProductEntity } from '../src/entities';
 // import { ConnectionOptions } from 'typeorm';
 // // import { ENVIRONMENT_VARIABLES } from '@package/config';
 // dotenv.config();
@@ -34,7 +33,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ENVIRONMENT_VARIABLES } from '@package/config';
 
 import * as path from 'path';
-import { UserEntity } from '../src/entities/user';
+import { CatagoryEntity, ProductEntity, UserEntity } from '@package/entities';
 
 export const DatabaseProvider: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
@@ -75,7 +74,7 @@ export const DatabaseProvider: TypeOrmModuleAsyncOptions = {
       password,
       database,
       // make it false, recommandable false
-      synchronize: false,
+      synchronize: true,
       migrationsTableName: 'typeorm_migrations',
       migrations: [
         path.resolve('../../packages/backend/src/migrations/*{.ts,.js}'),

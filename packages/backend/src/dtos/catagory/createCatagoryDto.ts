@@ -1,5 +1,5 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { CATAGORY_TYPE, STOCK } from '../../entities';
+import { CATAGORY_TYPE, STOCK } from '@package/entities';
 
 export interface ICreateCatagoryDTO {
   name: string;
