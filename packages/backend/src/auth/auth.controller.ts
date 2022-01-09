@@ -6,8 +6,12 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ISanitizedUser, IUserToken } from '@package/entities';
-import { RegistrationDTO } from '../dtos/auth';
+import { ISanitizedUser } from '@package/entities';
+import {
+  IUserLoginResponse,
+  IUserRegistrationResponse,
+  RegistrationDTO,
+} from '../dtos/auth';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard, LocalAuthGuard } from '../guard';
 
@@ -18,14 +22,14 @@ export class AuthController {
   @Post('register')
   async registration(
     @Body() registrationDto: RegistrationDTO,
-  ): Promise<ISanitizedUser> {
+  ): Promise<IUserRegistrationResponse> {
     return await this.authService.register(registrationDto);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  // create own decorator for this
-  async login(@Request() request): Promise<IUserToken> {
+  // create own decorator for request
+  async login(@Request() request): Promise<IUserLoginResponse> {
     return await this.authService.login(request.user);
   }
 

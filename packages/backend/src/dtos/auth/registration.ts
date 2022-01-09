@@ -5,6 +5,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { IUserToken } from '@package/entities';
 
 export interface IRegistrationDTO {
   firstName: string;
@@ -14,6 +15,8 @@ export interface IRegistrationDTO {
   password: string;
   confirmPassword: string;
 }
+
+export type IUserRegistrationResponse = IUserToken;
 
 export class RegistrationDTO implements IRegistrationDTO {
   @IsString()
@@ -33,9 +36,10 @@ export class RegistrationDTO implements IRegistrationDTO {
   @MaxLength(20, {
     message: " The password can't accept more than 20 characters ",
   })
-  // @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,20}$/,
-  //     { message: " A password at least contains one numeric digit, one supercase char and one lowercase char" }
-  // )
+  // @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,20}$/, {
+  //   message:
+  //     ' A password at least contains one numeric digit, one supercase char and one lowercase char',
+  // })
   password: string;
 
   @IsString()

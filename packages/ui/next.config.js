@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = (phase, { defaultConfig }) => {
@@ -23,22 +24,9 @@ module.exports = (phase, { defaultConfig }) => {
             // Important: return the modified config
             return config;
         },
-        // typescript: {
-        //     // !! WARN !!
-        //     // Dangerously allow production builds to successfully complete even if
-        //     // your project has type errors.
-        //     // !! WARN !!
-        //     ignoreBuildErrors: true,
-        //     ignoreDevErrors: true,
-        // },
-
         publicRuntimeConfig: {
             // here public config goes
             BACKEND_URL: (process.env.BACKEND_URL || '').trim(),
-            SDK_URL: (process.env.SDK_URL || '').trim(),
-            STRIPE_PUBLIC_KEY: (process.env.STRIPE_PUBLIC_KEY || '').trim(),
-            BASE_PLAN_ID: (process.env.BASE_PLAN_ID || '').trim(),
-            ZENDESK_URL: (process.env.ZENDESK_URL || '').trim(),
             ENVIRONMENT: (process.env.ENVIRONMENT || '').trim(),
         },
     };
