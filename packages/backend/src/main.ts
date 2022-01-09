@@ -8,8 +8,7 @@ import { ENVIRONMENT_VARIABLES } from '@package/config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.use(helmet());
 
   app.useGlobalPipes(new ValidationPipe());

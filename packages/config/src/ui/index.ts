@@ -5,6 +5,7 @@ export type UiConfig = {
     UI_PORT: number;
     ENVIRONMENT: string;
     NODE_ENV: string;
+    BACKEND_URL: string;
 };
 
 export const uiConfigSchema = pickAndGenerateSchema([
@@ -12,4 +13,5 @@ export const uiConfigSchema = pickAndGenerateSchema([
     ENVIRONMENT_VARIABLES.UI_PORT,
     ENVIRONMENT_VARIABLES.ENVIRONMENT,
     ENVIRONMENT_VARIABLES.NODE_ENV,
+    ENVIRONMENT_VARIABLES.BACKEND_URL,
 ]);

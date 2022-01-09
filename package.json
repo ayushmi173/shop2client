@@ -15,7 +15,7 @@
         "env": "dotenv -f ${ENV_PATH:-.env} --",
         "start:dev": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/{backend,ui} --stream",
         "start:admin:dev": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/admin-ui --stream",
-        "start:backend:dev": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/backend --stream"
+        "backend": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/backend --stream"
     },
     "devDependencies": {
         "@types/node": "^16.3.1",

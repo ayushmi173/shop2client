@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LoginDTO, RegistrationDTO } from '../dtos/auth';
+import {
+  IUserRegistrationResponse,
+  LoginDTO,
+  RegistrationDTO,
+} from '../dtos/auth';
 import { ISanitizedUser, IUserToken, UserEntity } from '@package/entities';
 
 import * as bcrypt from 'bcryptjs';
@@ -20,7 +24,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(registerUserDto: RegistrationDTO): Promise<ISanitizedUser> {
+  async register(
+    registerUserDto: RegistrationDTO,
+  ): Promise<IUserRegistrationResponse> {
     const existedUser: UserEntity | undefined = await this.authRepo.findOne({
       username: registerUserDto.username,
     });
@@ -41,12 +47,7 @@ export class AuthService {
     if (!registeredUser)
       throw new NotAcceptableException(`Can't register with this user`);
 
-    await this.login(registeredUser);
-    return registeredUser;
-  }
-
-  async checkLogin({ username, password }: LoginDTO) {
-    await this.validateUser({ username, password });
+    return await this.login(registeredUser);
   }
 
   async findOne(id: string): Promise<ISanitizedUser> {
@@ -89,8 +90,8 @@ export class AuthService {
   async login(user: ISanitizedUser): Promise<IUserToken> {
     const payload = { username: user.username, sub: user.id };
     return {
-      username: user.username,
       token: this.jwtService.sign(payload),
+      user,
     };
   }
 }
