@@ -5,6 +5,8 @@ import {
   Post,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ISanitizedUser } from '@package/entities';
 import {
@@ -16,6 +18,12 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard, LocalAuthGuard } from '../guard';
 
 @Controller('auth')
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+  }),
+)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
