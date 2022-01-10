@@ -19,11 +19,8 @@ export const registerUser =
                     expires: 30,
                 };
             console.log(user);
-
             dispatch(userRegisterSuccess());
         } catch (error) {
-            console.log(error);
-
-            dispatch(userRegisterFailed(error?.message?.data?.message));
+            return dispatch(userRegisterFailed(error.response.data.message));
         }
     };

@@ -9,10 +9,8 @@ import { ISanitizedUser } from '@package/entities';
 
 const service: BackendService = BackendService.create({
     baseUrl: config.BACKEND_URL,
-    includeToken: false,
+    includeToken: true,
 });
-
-console.log(config);
 
 const register = (
     credentials: IRegistrationDTO,
