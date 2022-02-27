@@ -3,5 +3,5 @@
 # *.cs linguist-detectable=true
 # *.xml linguist-detectable=true
 # *.html linguist-detectable=true
-app/* linguist-documentation=false
-app/* linguist-vendored
+packages/* linguist-documentation=false
+packages/* linguist-vendored
