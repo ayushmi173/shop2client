@@ -1,7 +1,7 @@
-*.js linguist-detectable=true
-*.typescript linguist-detectable=true
-*.cs linguist-detectable=true
-*.xml linguist-detectable=true
-*.html linguist-detectable=true
+# *.js linguist-detectable=true
+# *.typescript linguist-detectable=true
+# *.cs linguist-detectable=true
+# *.xml linguist-detectable=true
+# *.html linguist-detectable=true
 app/* linguist-documentation=false
 app/* linguist-vendored
