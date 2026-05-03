@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "LocalConnect",
+    "slug": "localconnect",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "localconnect",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#4F46E5"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.localconnect.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "LocalConnect needs camera access for profile photo and document verification.",
+        "NSLocationWhenInUseUsageDescription": "LocalConnect needs location to find workers near you."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#4F46E5"
+      },
+      "package": "com.localconnect.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,6 +1,6 @@
 export const DEFAULT_ADMIN_PORT = 7000;
 export const DEFAULT_BACKEND_PORT = 5000;
-export const DEFAULT_UI_PORT = 3000;
+export const DEFAULT_UI_PORT = 3004;
 
 export enum NODE_ENV {
     TEST = 'test',

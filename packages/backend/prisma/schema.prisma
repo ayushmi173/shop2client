@@ -1,0 +1,602 @@
+// LocalConnect - Smart Contact Dictionary & Service Marketplace
+// Prisma Schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  USER
+  WORKER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  FLAGGED
+  REMOVED
+}
+
+enum NotificationType {
+  SERVICE_REQUEST
+  REQUEST_ACCEPTED
+  REQUEST_REJECTED
+  REQUEST_COMPLETED
+  NEW_REVIEW
+  REVIEW_REMINDER
+  VERIFICATION_UPDATE
+  SYSTEM
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  VERIFY
+  MODERATE
+  BLOCK
+  UNBLOCK
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                String    @id @default(uuid())
+  phone             String    @unique
+  phoneVerified     Boolean   @default(false)
+  email             String?   @unique
+  emailVerified     Boolean   @default(false)
+  passwordHash      String?
+  firstName         String
+  lastName          String?
+  avatarUrl         String?
+  role              UserRole  @default(USER)
+  isActive          Boolean   @default(true)
+  isBlocked         Boolean   @default(false)
+  blockedReason     String?
+  lastLoginAt       DateTime?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  // Relations
+  workerProfile     WorkerProfile?
+  location          Location?
+  favorites         Favorite[]       @relation("UserFavorites")
+  favoritedBy       Favorite[]       @relation("FavoritedWorker")
+  serviceRequests   ServiceRequest[] @relation("UserRequests")
+  workerRequests    ServiceRequest[] @relation("WorkerRequests")
+  reviewsGiven      Review[]         @relation("ReviewAuthor")
+  reviewsReceived   Review[]         @relation("ReviewTarget")
+  refreshTokens     RefreshToken[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]       @relation("AuditUser")
+  auditLogsBy       AuditLog[]       @relation("AuditPerformedBy")
+  featureFlags      UserFeatureFlag[]
+
+  @@index([phone])
+  @@index([email])
+  @@index([role])
+  @@index([isActive, isBlocked])
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String    @id @default(uuid())
+  token       String    @unique
+  userId      String
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model OtpVerification {
+  id          String    @id @default(uuid())
+  phone       String
+  otp         String
+  expiresAt   DateTime
+  verified    Boolean   @default(false)
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([phone, otp])
+  @@index([expiresAt])
+  @@map("otp_verifications")
+}
+
+// ============================================
+// LOCATION
+// ============================================
+
+model Location {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  latitude        Float
+  longitude       Float
+  address         String?
+  street          String?
+  city            String
+  state           String
+  country         String    @default("India")
+  postalCode      String?
+  formattedAddress String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([city])
+  @@index([state])
+  @@index([latitude, longitude])
+  @@map("locations")
+}
+
+// ============================================
+// PROFESSIONS & WORKERS
+// ============================================
+
+model Profession {
+  id              String    @id @default(uuid())
+  name            String    @unique
+  slug            String    @unique
+  description     String?
+  iconUrl         String?
+  categoryGroup   String?   // e.g., "Home Services", "Personal Services"
+  isActive        Boolean   @default(true)
+  displayOrder    Int       @default(0)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  workerProfessions WorkerProfession[]
+  serviceRequests   ServiceRequest[]
+
+  @@index([slug])
+  @@index([categoryGroup])
+  @@index([isActive, displayOrder])
+  @@map("professions")
+}
+
+model WorkerProfile {
+  id                  String              @id @default(uuid())
+  userId              String              @unique
+  bio                 String?
+  experience          Int?                // years of experience
+  serviceRadius       Float               @default(5.0) // km
+  hourlyRate          Decimal?            @db.Decimal(10, 2)
+  minimumCharge       Decimal?            @db.Decimal(10, 2)
+  
+  // Verification
+  verificationStatus  VerificationStatus  @default(PENDING)
+  verifiedAt          DateTime?
+  verifiedById        String?
+  
+  // Stats (denormalized for performance)
+  totalJobs           Int                 @default(0)
+  completedJobs       Int                 @default(0)
+  cancelledJobs       Int                 @default(0)
+  averageRating       Float               @default(0)
+  totalReviews        Int                 @default(0)
+  trustScore          Float               @default(0)
+  
+  // Availability
+  isAvailable         Boolean             @default(true)
+  emergencyAvailable  Boolean             @default(false)
+  
+  // Profile completeness
+  profileComplete     Boolean             @default(false)
+  
+  // Timestamps
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  deletedAt           DateTime?
+
+  // Relations
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  professions         WorkerProfession[]
+  availabilitySlots   AvailabilitySlot[]
+  documents           WorkerDocument[]
+  verificationLogs    VerificationLog[]
+  workerTags          WorkerTag[]
+
+  @@index([verificationStatus])
+  @@index([isAvailable])
+  @@index([averageRating])
+  @@index([trustScore])
+  @@index([serviceRadius])
+  @@map("worker_profiles")
+}
+
+model WorkerProfession {
+  id              String    @id @default(uuid())
+  workerId        String
+  professionId    String
+  isPrimary       Boolean   @default(false)
+  yearsExperience Int?
+  
+  createdAt       DateTime  @default(now())
+
+  worker          WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  profession      Profession    @relation(fields: [professionId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, professionId])
+  @@index([professionId])
+  @@map("worker_professions")
+}
+
+model AvailabilitySlot {
+  id          String      @id @default(uuid())
+  workerId    String
+  dayOfWeek   DayOfWeek
+  startTime   String      // HH:mm format
+  endTime     String      // HH:mm format
+  isActive    Boolean     @default(true)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  worker      WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId, dayOfWeek])
+  @@index([isActive])
+  @@map("availability_slots")
+}
+
+model WorkerDocument {
+  id              String    @id @default(uuid())
+  workerId        String
+  documentType    String    // e.g., "ID_PROOF", "ADDRESS_PROOF", "SKILL_CERTIFICATE"
+  documentUrl     String
+  isVerified      Boolean   @default(false)
+  verifiedAt      DateTime?
+  verifiedById    String?
+  rejectionReason String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  worker          WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId])
+  @@index([documentType])
+  @@map("worker_documents")
+}
+
+model WorkerTag {
+  id          String    @id @default(uuid())
+  workerId    String
+  tag         String    // e.g., "Reliable", "Fast Response", "Emergency-ready"
+  isAutomatic Boolean   @default(true)
+  score       Float     @default(0)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  worker      WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, tag])
+  @@index([tag])
+  @@map("worker_tags")
+}
+
+// ============================================
+// SERVICE REQUESTS
+// ============================================
+
+model ServiceRequest {
+  id                  String                @id @default(uuid())
+  requestNumber       String                @unique // e.g., "SR-2024-001234"
+  userId              String
+  workerId            String?
+  professionId        String
+  
+  // Request details
+  title               String
+  description         String
+  preferredDate       DateTime?
+  preferredTimeSlot   String?               // e.g., "09:00-12:00"
+  urgency             String                @default("NORMAL") // NORMAL, URGENT, EMERGENCY
+  
+  // Location
+  serviceLatitude     Float?
+  serviceLongitude    Float?
+  serviceAddress      String?
+  
+  // Status
+  status              ServiceRequestStatus  @default(PENDING)
+  statusHistory       Json?                 // Array of {status, timestamp, note}
+  
+  // Pricing
+  estimatedPrice      Decimal?              @db.Decimal(10, 2)
+  finalPrice          Decimal?              @db.Decimal(10, 2)
+  
+  // Timestamps
+  acceptedAt          DateTime?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancellationReason  String?
+  cancelledBy         String?               // USER or WORKER
+  
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  deletedAt           DateTime?
+
+  // Relations
+  user                User                  @relation("UserRequests", fields: [userId], references: [id])
+  worker              User?                 @relation("WorkerRequests", fields: [workerId], references: [id])
+  profession          Profession            @relation(fields: [professionId], references: [id])
+  review              Review?
+
+  @@index([userId])
+  @@index([workerId])
+  @@index([professionId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([requestNumber])
+  @@map("service_requests")
+}
+
+// ============================================
+// REVIEWS & RATINGS
+// ============================================
+
+model Review {
+  id                  String        @id @default(uuid())
+  serviceRequestId    String        @unique
+  authorId            String
+  targetId            String        // Worker being reviewed
+  
+  // Rating
+  rating              Int           // 1-5
+  title               String?
+  comment             String?
+  
+  // Moderation
+  status              ReviewStatus  @default(PENDING)
+  moderatedById       String?
+  moderatedAt         DateTime?
+  moderationNote      String?
+  
+  // Flags
+  isVerifiedPurchase  Boolean       @default(true)
+  helpfulCount        Int           @default(0)
+  reportCount         Int           @default(0)
+  
+  // Response
+  workerResponse      String?
+  workerRespondedAt   DateTime?
+  
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  deletedAt           DateTime?
+
+  serviceRequest      ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  author              User           @relation("ReviewAuthor", fields: [authorId], references: [id])
+  target              User           @relation("ReviewTarget", fields: [targetId], references: [id])
+
+  @@index([targetId, status])
+  @@index([authorId])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+// ============================================
+// FAVORITES
+// ============================================
+
+model Favorite {
+  id          String    @id @default(uuid())
+  userId      String
+  workerId    String
+  note        String?   // Personal note about the worker
+  
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+  worker      User      @relation("FavoritedWorker", fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workerId])
+  @@index([userId])
+  @@index([workerId])
+  @@map("favorites")
+}
+
+// ============================================
+// VERIFICATION & AUDIT
+// ============================================
+
+model VerificationLog {
+  id              String              @id @default(uuid())
+  workerId        String
+  action          String              // SUBMITTED, APPROVED, REJECTED, RE_VERIFICATION
+  previousStatus  VerificationStatus?
+  newStatus       VerificationStatus
+  performedById   String?
+  notes           String?
+  metadata        Json?
+  
+  createdAt       DateTime            @default(now())
+
+  worker          WorkerProfile       @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId])
+  @@index([createdAt])
+  @@map("verification_logs")
+}
+
+model AuditLog {
+  id              String      @id @default(uuid())
+  userId          String?
+  performedById   String?
+  action          AuditAction
+  entityType      String      // e.g., "User", "ServiceRequest", "Review"
+  entityId        String
+  oldValue        Json?
+  newValue        Json?
+  ipAddress       String?
+  userAgent       String?
+  metadata        Json?
+  
+  createdAt       DateTime    @default(now())
+
+  user            User?       @relation("AuditUser", fields: [userId], references: [id])
+  performedBy     User?       @relation("AuditPerformedBy", fields: [performedById], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id          String            @id @default(uuid())
+  userId      String
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?             // Additional data like requestId, workerId
+  isRead      Boolean           @default(false)
+  readAt      DateTime?
+  
+  createdAt   DateTime          @default(now())
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ============================================
+// FEATURE FLAGS & CONFIGURATION
+// ============================================
+
+model FeatureFlag {
+  id              String    @id @default(uuid())
+  name            String    @unique
+  description     String?
+  isEnabled       Boolean   @default(false)
+  enabledCities   String[]  // Cities where this feature is enabled
+  enabledPercent  Int       @default(0) // Rollout percentage
+  metadata        Json?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  userFlags       UserFeatureFlag[]
+
+  @@index([name])
+  @@index([isEnabled])
+  @@map("feature_flags")
+}
+
+model UserFeatureFlag {
+  id            String    @id @default(uuid())
+  userId        String
+  featureFlagId String
+  isEnabled     Boolean   @default(true)
+  
+  createdAt     DateTime  @default(now())
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  featureFlag   FeatureFlag @relation(fields: [featureFlagId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, featureFlagId])
+  @@map("user_feature_flags")
+}
+
+// ============================================
+// BACKGROUND JOBS
+// ============================================
+
+model ScheduledJob {
+  id          String    @id @default(uuid())
+  name        String
+  type        String    // e.g., "REVIEW_REMINDER", "INACTIVE_ALERT"
+  payload     Json?
+  scheduledAt DateTime
+  executedAt  DateTime?
+  status      String    @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED
+  error       String?
+  retryCount  Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([type, status])
+  @@index([scheduledAt])
+  @@map("scheduled_jobs")
+}
+
+// ============================================
+// CACHE INVALIDATION TRACKING
+// ============================================
+
+model CacheInvalidation {
+  id          String    @id @default(uuid())
+  cacheKey    String
+  reason      String
+  invalidatedAt DateTime @default(now())
+
+  @@index([cacheKey])
+  @@index([invalidatedAt])
+  @@map("cache_invalidations")
+}

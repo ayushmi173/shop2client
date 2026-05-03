@@ -1,14 +1,13 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "experimentalDecorators": true,
-        "target": "esnext",
+        "target": "ES2020",
         "module": "commonjs",
         "jsx": "preserve",
-        "lib": ["dom", "es2017"],
+        "lib": ["dom", "es2020"],
         "moduleResolution": "node",
         "allowJs": true,
-        "strict": false,
+        "strict": true,
         "noEmit": true,
         "incremental": false,
         "baseUrl": "./",
