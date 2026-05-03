@@ -1,58 +1,152 @@
-version: '3.4'
+version: '3.8'
 
 networks:
-    shop2client:
-        driver: bridge
+  localconnect:
+    driver: bridge
 
 volumes:
-    shop2client-volume:
+  postgres-data:
+  redis-data:
 
 services:
-    # ui:
-    #     container_name: shop2client-ui
-    #     build: ./packages/ui
-    #     ports:
-    #         - '6000:6000'
-    #     restart: always
-    #     links:
-    #         - backend
-    #     networks:
-    #         - shop2client
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    container_name: localconnect-postgres
+    image: 'postgres:15-alpine'
+    command: postgres -c max_connections=200
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-localconnect}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DATABASE_NAME:-localconnect}
+      PGDATA: /var/lib/postgresql/data/db
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:delegated
+    networks:
+      - localconnect
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-localconnect}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-    # backend:
-    #     container_name: backend
-    #     build: ./packages/backend
-    #     ports:
-    #         - '5000:5000'
-    #     restart: always
-    #     links:
-    #         - postgres
-    #     networks:
-    #         - shop2client
-    postgres:
-        container_name: shop2client
-        image: 'postgres:11.5'
-        command: postgres -c max_connections=1000
-        environment:
-            POSTGRES_USER: ${POSTGRES_USER:-ayush}
-            POSTGRES_PASSWORD: ${POSTGRES_PASS:-password}
-            POSTGRES_DB: ecommerce
-            PGDATA: /var/lib/postgresql/data/db
-        ports:
-            - '5434:5432'
-        volumes:
-            - shop2client-volume:/var/lib/postgresql/data:delegated
-        networks:
-            - shop2client
-        restart: unless-stopped
+  # ============================================
+  # Redis Cache & Queue
+  # ============================================
+  redis:
+    container_name: localconnect-redis
+    image: 'redis:7-alpine'
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+    ports:
+      - '${REDIS_PORT:-6374}:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - localconnect
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-    pgadmin:
-        container_name: shop2client-pgadmin
-        image: 'dpage/pgadmin4'
-        environment:
-            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER:-ayush@mishra.com}
-            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-password}
-        networks:
-            - shop2client
-        ports:
-            - '6002:80'
+  # ============================================
+  # pgAdmin (Development Only)
+  # ============================================
+  pgadmin:
+    container_name: localconnect-pgadmin
+    image: 'dpage/pgadmin4:latest'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@localconnect.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    networks:
+      - localconnect
+    ports:
+      - '${PGADMIN_PORT:-5050}:80'
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # ============================================
+  # Redis Commander (Development Only)
+  # ============================================
+  redis-commander:
+    container_name: localconnect-redis-commander
+    image: 'rediscommander/redis-commander:latest'
+    environment:
+      REDIS_HOSTS: local:redis:6379${REDIS_PASSWORD:+:$REDIS_PASSWORD}
+    networks:
+      - localconnect
+    ports:
+      - '${REDIS_COMMANDER_PORT:-8081}:8081'
+    depends_on:
+      - redis
+    restart: unless-stopped
+    profiles:
+      - dev-tools
+
+  # ============================================
+  # Backend API (Production/Staging)
+  # ============================================
+  # backend:
+  #   container_name: localconnect-backend
+  #   build:
+  #     context: ./packages/backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '${BACKEND_PORT:-3001}:3001'
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE_NAME}
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - localconnect
+  #   restart: unless-stopped
+
+  # ============================================
+  # Frontend UI (Production/Staging)
+  # ============================================
+  # ui:
+  #   container_name: localconnect-ui
+  #   build:
+  #     context: ./packages/ui
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '${UI_PORT:-3000}:3000'
+  #   environment:
+  #     - NODE_ENV=production
+  #     - NEXT_PUBLIC_API_URL=http://backend:3001
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - localconnect
+  #   restart: unless-stopped
+
+  # ============================================
+  # Admin UI (Production/Staging)
+  # ============================================
+  # admin-ui:
+  #   container_name: localconnect-admin-ui
+  #   build:
+  #     context: ./packages/admin-ui
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '${ADMIN_WEB_PORT:-3002}:3002'
+  #   environment:
+  #     - NODE_ENV=production
+  #     - NEXT_PUBLIC_API_URL=http://backend:3001
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - localconnect
+  #   restart: unless-stopped

@@ -1,8 +1,8 @@
 {
-    "name": "shop2client",
+    "name": "localconnect",
     "version": "1.0.0",
     "main": "index.js",
-    "repository": "git@github.com:ayushmi173/shop2client.git",
+    "description": "Smart Contact Dictionary & Service Marketplace for Local Workers",
     "author": "ayushmi173 <ayushmishra173@gmail.com>",
     "license": "MIT",
     "private": true,
@@ -10,19 +10,33 @@
         "packages/*"
     ],
     "scripts": {
-        "sync": "yarn install --production=false && lerna bootstrap && yarn build",
-        "build": "yarn env lerna run build --parallel",
-        "env": "dotenv -f ${ENV_PATH:-.env} --",
-        "start:dev": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/{backend,ui} --stream",
-        "start:admin:dev": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/admin-ui --stream",
-        "backend": "yarn env lerna exec 'yarn start:dev' --scope=@shop2client/backend --stream"
+        "backend": "yarn workspace @localconnect/backend start:dev",
+        "ui": "yarn workspace @localconnect/ui dev",
+        "mobile": "yarn workspace @localconnect/mobile start",
+        "mobile:ios": "yarn workspace @localconnect/mobile ios",
+        "mobile:android": "yarn workspace @localconnect/mobile android",
+        "sync": "yarn install --production=false && yarn build",
+        "build": "yarn workspaces foreach run build",
+        "start:dev": "concurrently \"yarn backend\" \"yarn ui\"",
+        "docker:start": "docker compose up -d",
+        "docker:stop": "docker compose down",
+        "prisma:generate": "yarn workspace @localconnect/backend prisma:generate",
+        "prisma:migrate": "yarn workspace @localconnect/backend prisma:migrate:dev",
+        "prisma:seed": "yarn workspace @localconnect/backend prisma:db:seed",
+        "prisma:studio": "yarn workspace @localconnect/backend prisma:studio"
     },
     "devDependencies": {
+        "@babel/core": "^7.29.0",
+        "@babel/plugin-proposal-export-default-from": "^7.27.1",
+        "@babel/plugin-syntax-export-default-from": "^7.28.6",
+        "@babel/plugin-transform-runtime": "^7.29.0",
+        "@babel/preset-env": "^7.29.0",
+        "@babel/runtime": "^7.28.6",
         "@types/node": "^16.3.1",
         "@types/react": "^17.0.14",
         "@types/react-dom": "^17.0.9",
         "ts-loader": "^9.2.3",
-        "typescript": "^4.3.5"
+        "typescript": "^5.5.4"
     },
     "dependencies": {
         "dotenv": "^10.0.0",

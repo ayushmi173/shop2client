@@ -1,49 +1,148 @@
 import {
-  Body,
   Controller,
-  Get,
   Post,
-  Request,
+  Get,
+  Body,
+  HttpCode,
+  HttpStatus,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
-import { ISanitizedUser } from '@package/entities';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthService } from './services/auth.service';
 import {
-  IUserLoginResponse,
-  IUserRegistrationResponse,
-  RegistrationDTO,
-} from '../dtos/auth';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard, LocalAuthGuard } from '../guard';
+  SendOtpSchema,
+  VerifyOtpSchema,
+  RegisterSchema,
+  RegisterWorkerSchema,
+  RefreshTokenSchema,
+  SendOtpDto,
+  VerifyOtpDto,
+  RegisterDto,
+  RegisterWorkerDto,
+  RefreshTokenDto,
+} from './dto';
+import { ZodValidate } from '../common/pipes';
+import { Public, CurrentUser } from '../common/decorators';
+import { JwtAuthGuard } from '../common/guards';
+import { User } from '@prisma/client';
 
-@Controller('auth')
-@UsePipes(
-  new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }),
-)
+@ApiTags('auth')
+@Controller('api/v1/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  async registration(
-    @Body() registrationDto: RegistrationDTO,
-  ): Promise<IUserRegistrationResponse> {
-    return await this.authService.register(registrationDto);
+  @Public()
+  @Post('otp/send')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send OTP to phone number' })
+  @ApiResponse({ status: 200, description: 'OTP sent successfully' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  async sendOtp(
+    @Body(ZodValidate(SendOtpSchema)) dto: SendOtpDto,
+  ) {
+    const result = await this.authService.requestOtp(dto.phone);
+    return {
+      success: true,
+      message: 'OTP sent successfully',
+      data: result,
+    };
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  // create own decorator for request
-  async login(@Request() request): Promise<IUserLoginResponse> {
-    return await this.authService.login(request.user);
+  @Public()
+  @Post('otp/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify OTP and login/register' })
+  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async verifyOtp(
+    @Body(ZodValidate(VerifyOtpSchema)) dto: VerifyOtpDto,
+  ) {
+    const result = await this.authService.verifyOtpAndLogin(dto);
+    return {
+      success: true,
+      message: result.isNewUser ? 'Registration successful' : 'Login successful',
+      data: result,
+    };
   }
 
+  @Post('register/complete')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Complete user registration' })
+  @ApiResponse({ status: 200, description: 'Registration completed' })
+  async completeRegistration(
+    @CurrentUser() user: User,
+    @Body(ZodValidate(RegisterSchema)) dto: RegisterDto,
+  ) {
+    const result = await this.authService.completeRegistration(user.id, dto);
+    return {
+      success: true,
+      message: 'Registration completed',
+      data: result,
+    };
+  }
+
+  @Post('register/worker')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Register as a worker' })
+  @ApiResponse({ status: 200, description: 'Worker registration completed' })
+  async registerWorker(
+    @CurrentUser() user: User,
+    @Body(ZodValidate(RegisterWorkerSchema)) dto: RegisterWorkerDto,
+  ) {
+    const result = await this.authService.registerWorker(user.id, dto);
+    return {
+      success: true,
+      message: 'Worker registration completed',
+      data: result,
+    };
+  }
+
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({ status: 200, description: 'Tokens refreshed' })
+  @ApiResponse({ status: 401, description: 'Invalid refresh token' })
+  async refreshToken(
+    @Body(ZodValidate(RefreshTokenSchema)) dto: RefreshTokenDto,
+  ) {
+    const tokens = await this.authService.refreshTokens(dto.refreshToken);
+    return {
+      success: true,
+      message: 'Tokens refreshed',
+      data: tokens,
+    };
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 200, description: 'Logged out successfully' })
+  async logout(
+    @CurrentUser() user: User,
+    @Body() body: { refreshToken?: string },
+  ) {
+    await this.authService.logout(user.id, body.refreshToken);
+    return {
+      success: true,
+      message: 'Logged out successfully',
+    };
+  }
+
   @Get('me')
-  async getMe(@Request() request): Promise<ISanitizedUser> {
-    return await this.authService.getMe(request.user.id);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user' })
+  @ApiResponse({ status: 200, description: 'Current user data' })
+  async getMe(@CurrentUser() user: User) {
+    const fullUser = await this.authService.getUserById(user.id);
+    return {
+      success: true,
+      data: fullUser,
+    };
   }
 }

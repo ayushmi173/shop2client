@@ -1,28 +1,71 @@
-import { Logger, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import DatabaseProvider from '../databaseConfig';
-import { ProductModule } from './product/product.module';
-import { CatagoryModule } from './catagory/catagory.module';
-import { UploadModule } from './upload/upload.module';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { backendConfigSchema } from '@package/config';
-import { AuthModule } from './auth/auth.module';
+import { APP_GUARD, APP_FILTER } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+
+// Core modules
+import { PrismaModule } from './prisma';
+import { RedisModule } from './redis';
+
+// Feature modules
+import { AuthModule } from './auth';
+import { WorkersModule } from './workers';
+import { ProfessionsModule } from './professions';
+import { ServiceRequestsModule } from './service-requests';
+import { ReviewsModule } from './reviews';
+import { FavoritesModule } from './favorites';
+
+// Common
+import { JwtAuthGuard, RolesGuard } from './common/guards';
+import { GlobalExceptionFilter } from './common/filters';
 
 @Module({
   imports: [
+    // Configuration
     ConfigModule.forRoot({
-      validationSchema: backendConfigSchema,
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
     }),
-    TypeOrmModule.forRootAsync(DatabaseProvider),
-    ProductModule,
-    CatagoryModule,
-    UploadModule,
+
+    // Rate limiting
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1 minute
+      limit: 100, // 100 requests per minute
+    }]),
+
+    // Core modules
+    PrismaModule,
+    RedisModule,
+
+    // Feature modules
     AuthModule,
+    WorkersModule,
+    ProfessionsModule,
+    ServiceRequestsModule,
+    ReviewsModule,
+    FavoritesModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, Logger],
+  providers: [
+    // Global exception filter
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    // Global JWT auth guard
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    // Global roles guard
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
